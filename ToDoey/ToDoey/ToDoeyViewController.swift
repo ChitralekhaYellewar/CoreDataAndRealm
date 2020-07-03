@@ -36,7 +36,10 @@ class ToDoeyViewController: UITableViewController {
         }
         
         let alertAction = UIAlertAction(title: "Add", style: .default) { addItem in
-            print(itemTextField.text)
+            let newItem = Item()
+            newItem.name = itemTextField.text
+            self.itemArray.append(newItem)
+            self.tableView.reloadData()
         }
         
         alert.addAction(alertAction)
