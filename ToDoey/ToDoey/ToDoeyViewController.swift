@@ -14,17 +14,7 @@ class ToDoeyViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        let tea = Item()
-        tea.name = "tea"
-        tea.check = false
-        itemArray.append(tea)
-        itemArray.append(tea)
-        itemArray.append(tea)
-        itemArray.append(tea)
-        itemArray.append(tea)
-        itemArray.append(tea)
-        itemArray.append(tea)
+        getItems()
     }
 
     @IBAction func addItem(_ sender: UIBarButtonItem) {
@@ -39,11 +29,34 @@ class ToDoeyViewController: UITableViewController {
             let newItem = Item()
             newItem.name = itemTextField.text
             self.itemArray.append(newItem)
-            self.tableView.reloadData()
+            self.save()
         }
         
         alert.addAction(alertAction)
         present(alert, animated: true, completion: nil)
+    }
+    
+    //MARK:- user defaults methods
+    func save() {
+        let userDefaults = UserDefaults.standard
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(self.itemArray)
+            userDefaults.set(data, forKey: "ItemsArray")
+            self.tableView.reloadData()
+        } catch {
+            print("Error while encoding items array")
+        }
+    }
+    
+    func getItems() {
+        let decoder = PropertyListDecoder()
+        let data = UserDefaults.standard.data(forKey: "ItemsArray")
+        do {
+            self.itemArray = try decoder.decode([Item].self, from: data!)
+        } catch {
+            print("Error while decoding")
+        }
     }
 }
 
@@ -61,15 +74,12 @@ extension ToDoeyViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         let itemCell = tableView.cellForRow(at: indexPath)
         itemArray[indexPath.row].check = !itemArray[indexPath.row].check
-
         itemCell?.accessoryType = itemArray[indexPath.row].check ? .none : .checkmark
-        
         tableView.reloadData()
-        
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
     
 }
