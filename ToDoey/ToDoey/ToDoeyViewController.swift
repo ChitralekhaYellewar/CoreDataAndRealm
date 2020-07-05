@@ -39,13 +39,14 @@ class ToDoeyViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    //MARK:- user defaults methods
+    //MARK:- core data methods
     func save() {
         do {
             try context.save()
         } catch {
             print("Error while saving data.")
         }
+        self.tableView.reloadData()
     }
     
     func getItems() {
@@ -79,6 +80,10 @@ extension ToDoeyViewController {
         itemCell?.accessoryType = itemArray[indexPath.row].check ? .none : .checkmark
         tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        //Delete
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
     }
     
 }
