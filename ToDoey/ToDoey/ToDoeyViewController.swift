@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import CoreData
 
 class ToDoeyViewController: UITableViewController {
     
     var itemArray: [Item] = []
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,8 +28,9 @@ class ToDoeyViewController: UITableViewController {
         }
         
         let alertAction = UIAlertAction(title: "Add", style: .default) { addItem in
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             newItem.name = itemTextField.text
+            newItem.check = false
             self.itemArray.append(newItem)
             self.save()
         }
@@ -38,25 +41,21 @@ class ToDoeyViewController: UITableViewController {
     
     //MARK:- user defaults methods
     func save() {
-        let userDefaults = UserDefaults.standard
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(self.itemArray)
-            userDefaults.set(data, forKey: "ItemsArray")
-            self.tableView.reloadData()
+            try context.save()
         } catch {
-            print("Error while encoding items array")
+            print("Error while saving data.")
         }
     }
     
     func getItems() {
-        let decoder = PropertyListDecoder()
-        let data = UserDefaults.standard.data(forKey: "ItemsArray")
+        let fetchRequest : NSFetchRequest<Item> = Item.fetchRequest()
         do {
-            self.itemArray = try decoder.decode([Item].self, from: data!)
+            try itemArray = context.fetch(fetchRequest)
         } catch {
-            print("Error while decoding")
+            print("Error while fetching data")
         }
+        
     }
 }
 
