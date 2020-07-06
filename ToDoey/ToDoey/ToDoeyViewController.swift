@@ -75,15 +75,16 @@ extension ToDoeyViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let itemCell = tableView.cellForRow(at: indexPath)
-        itemArray[indexPath.row].check = !itemArray[indexPath.row].check
-        itemCell?.accessoryType = itemArray[indexPath.row].check ? .none : .checkmark
-        tableView.reloadData()
-        tableView.deselectRow(at: indexPath, animated: true)
+//        let itemCell = tableView.cellForRow(at: indexPath)
+//        itemArray[indexPath.row].check = !itemArray[indexPath.row].check
+//        itemCell?.accessoryType = itemArray[indexPath.row].check ? .none : .checkmark
+//        tableView.reloadData()
+//        tableView.deselectRow(at: indexPath, animated: true)
         
         //Delete
-//        context.delete(itemArray[indexPath.row])
-//        itemArray.remove(at: indexPath.row)
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)
+        save()
     }
     
 }
