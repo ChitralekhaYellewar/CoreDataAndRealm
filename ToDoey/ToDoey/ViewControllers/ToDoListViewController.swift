@@ -9,8 +9,9 @@
 import UIKit
 import CoreData
 
-class ToDoeyViewController: UITableViewController {
+class ToDoListViewController: UITableViewController {
     
+    @IBOutlet weak var searchBar: UISearchBar!
     var itemArray: [Item] = []
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
@@ -49,18 +50,17 @@ class ToDoeyViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func getItems() {
-        let fetchRequest : NSFetchRequest<Item> = Item.fetchRequest()
+    func getItems(with request:NSFetchRequest<Item> = Item.fetchRequest()) {
         do {
-            try itemArray = context.fetch(fetchRequest)
+            try itemArray = context.fetch(request)
         } catch {
             print("Error while fetching data")
         }
-        
+        self.tableView.reloadData()
     }
 }
 
-extension ToDoeyViewController {
+extension ToDoListViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
@@ -75,16 +75,33 @@ extension ToDoeyViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-//        let itemCell = tableView.cellForRow(at: indexPath)
-//        itemArray[indexPath.row].check = !itemArray[indexPath.row].check
-//        itemCell?.accessoryType = itemArray[indexPath.row].check ? .none : .checkmark
-//        tableView.reloadData()
-//        tableView.deselectRow(at: indexPath, animated: true)
+        let itemCell = tableView.cellForRow(at: indexPath)
+        itemArray[indexPath.row].check = !itemArray[indexPath.row].check
+        itemCell?.accessoryType = itemArray[indexPath.row].check ? .none : .checkmark
+        tableView.reloadData()
+        tableView.deselectRow(at: indexPath, animated: true)
         
         //Delete
-        context.delete(itemArray[indexPath.row])
-        itemArray.remove(at: indexPath.row)
-        save()
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
+//        save()
+    }
+    
+}
+
+//MARK:- Search bar
+extension ToDoListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        let fetchRequest : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        fetchRequest.predicate = NSPredicate(format: "name CONTAINS[cd] %@",searchBar.text!)
+        
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        
+        getItems(with: fetchRequest)
+        
     }
     
 }
