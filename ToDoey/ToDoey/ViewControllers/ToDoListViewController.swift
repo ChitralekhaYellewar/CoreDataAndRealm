@@ -13,6 +13,13 @@ class ToDoListViewController: UITableViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
     var itemArray: [Item] = []
+    
+    var selectedCategory : ItemCategory? {
+        didSet {
+            tableView.reloadData()
+        }
+    }
+    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
@@ -32,6 +39,7 @@ class ToDoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.name = itemTextField.text
             newItem.check = false
+            newItem.isCategory = self.selectedCategory
             self.itemArray.append(newItem)
             self.save()
         }
@@ -50,7 +58,16 @@ class ToDoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func getItems(with request:NSFetchRequest<Item> = Item.fetchRequest()) {
+    func getItems(with request:NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        
+        let categoryPredicate = NSPredicate(format: "isCategory.title MATCHES %@", selectedCategory!.title!)
+        
+        if let predicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
         do {
             try itemArray = context.fetch(request)
         } catch {
@@ -96,11 +113,9 @@ extension ToDoListViewController: UISearchBarDelegate {
         
         let fetchRequest : NSFetchRequest<Item> = Item.fetchRequest()
         
-        fetchRequest.predicate = NSPredicate(format: "name CONTAINS[cd] %@",searchBar.text!)
-        
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
-        getItems(with: fetchRequest)
+        getItems(with: fetchRequest, predicate: NSPredicate(format: "name CONTAINS[cd] %@",searchBar.text!))
         
     }
     

@@ -52,6 +52,14 @@ class CategoryTableViewController: UITableViewController {
             print("Error while fetching Categories")
         }
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationVC = segue.destination as! ToDoListViewController
+        
+        if let indexPath = tableView.indexPathForSelectedRow {
+            destinationVC.selectedCategory = categoryArray[indexPath.row]
+        }
+    }
 }
 
 extension CategoryTableViewController {
@@ -64,5 +72,10 @@ extension CategoryTableViewController {
         let categoryCell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
         categoryCell.textLabel?.text = categoryArray[indexPath.row].title
         return categoryCell
+    }
+    
+    //MARK:- table view delegates
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showItems", sender: self)
     }
 }
